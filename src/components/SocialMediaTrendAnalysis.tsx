@@ -52,7 +52,7 @@ const socialMentionsData: Record<string, SocialMention[]> = {
     {
       platform: 'Reddit',
       type: 'comment',
-      content: 'I've tried 5 different mental health apps and none of them really address my specific anxiety issues.',
+      content: "I've tried 5 different mental health apps and none of them really address my specific anxiety issues.",
       engagement: 78,
       sentiment: 'negative',
       url: 'https://reddit.com/r/mentalhealth/comments/54321',
