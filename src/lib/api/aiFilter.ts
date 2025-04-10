@@ -2,6 +2,11 @@ interface TrendAnalysis {
   isRelevant: boolean;
   reason: string;
   potentialScore: number;
+  validation: {
+    category: string;
+    relevanceScore: number;
+    reason: string;
+  };
 }
 
 export const analyzeTrend = async (query: string): Promise<TrendAnalysis> => {
@@ -17,7 +22,12 @@ export const analyzeTrend = async (query: string): Promise<TrendAnalysis> => {
       reason: isRelevant ? 
         "This trend shows potential for product development" : 
         "This trend is related to entertainment/celebrities",
-      potentialScore: isRelevant ? 0.8 : 0.2
+      potentialScore: isRelevant ? 0.8 : 0.2,
+      validation: {
+        category: 'general',
+        relevanceScore: isRelevant ? 0.8 : 0.2,
+        reason: isRelevant ? 'This trend is relevant for product development' : 'This trend is related to entertainment/celebrities'
+      }
     };
   } catch (error) {
     console.error('Error analyzing trend:', error);

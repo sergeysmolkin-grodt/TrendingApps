@@ -1,27 +1,61 @@
-import axios from 'axios';
+import { analyzeTrend } from './googleTrendsAnalyzer';
+import {
+  fetchDailyTrends,
+  fetchInterestOverTime,
+  fetchRelatedQueries
+} from './googleTrendsAdapter';
 
-interface TrendData {
+interface Trend {
   query: string;
   traffic: number;
   date: string;
   country: string;
-  related_queries?: Array<{
-    query: string;
-    value: number;
-  }>;
-  related_topics?: Array<{
-    topic: string;
-    value: number;
-  }>;
+  isRelevant?: boolean;
+  potentialScore?: number;
+  validation?: {
+    category: string;
+    relevanceScore: number;
+    reason: string;
+  };
 }
 
-export const fetchGoogleTrends = async (): Promise<TrendData[]> => {
+export async function fetchGoogleTrends(): Promise<Trend[]> {
   try {
-    const response = await axios.get<TrendData[]>('http://localhost:8081/api/trends');
+    // Get trending searches
+    const dailyTrends = await fetchDailyTrends();
     
-    return response.data;
+    // Analyze each trend
+    const analyzedTrends = await Promise.all(
+      dailyTrends.map(async (trend) => {
+        // Get interest over time for traffic calculation
+        const interestData = await fetchInterestOverTime(trend.title);
+        const traffic = interestData.length > 0 ? Math.max(...interestData.map(p => p.value)) : 0;
+
+        // Get related queries for validation
+        const relatedQueries = await fetchRelatedQueries(trend.title);
+        
+        // Analyze the trend
+        const analysis = await analyzeTrend(trend.title);
+        
+        return {
+          query: trend.title,
+          traffic,
+          date: new Date().toISOString(),
+          country: 'US',
+          isRelevant: analysis.isRelevant,
+          potentialScore: analysis.metrics.growthRate,
+          validation: {
+            category: analysis.category,
+            relevanceScore: analysis.metrics.stability,
+            reason: analysis.relevanceReason
+          }
+        };
+      })
+    );
+
+    return analyzedTrends;
   } catch (error) {
     console.error('Error fetching Google Trends:', error);
-    throw error;
+    return [];
   }
-}; 
+} 

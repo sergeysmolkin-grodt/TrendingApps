@@ -1,17 +1,14 @@
+# main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import praw
-import pandas as pd
+from pytrends.request import TrendReq
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+import pandas as pd
+import time
 
 app = FastAPI()
 
-# Enable CORS
+# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -20,56 +17,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Reddit API
-reddit = praw.Reddit(
-    client_id=os.getenv('REDDIT_CLIENT_ID'),
-    client_secret=os.getenv('REDDIT_CLIENT_SECRET'),
-    user_agent='TrendWhisperer/1.0'
-)
+# Инициализация pytrends
+pytrends = TrendReq(hl='en-US', tz=360)
 
-@app.get("/api/trends")
-async def get_trends():
+def get_trends_with_retry(max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return pytrends.trending_searches(pn='united_states')
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise e
+            time.sleep(2 ** attempt)  # Экспоненциальная задержка
+
+@app.get("/api/trends/daily")
+async def get_daily_trends():
     try:
-        print("Starting Reddit trends analysis...")
-        results = []
-        
-        # List of subreddits to monitor
-        subreddits = ['startups', 'Entrepreneur', 'AppIdeas', 'sideproject', 'technology', 'AskReddit']
-        
-        for subreddit_name in subreddits:
-            try:
-                print(f"Fetching posts from r/{subreddit_name}...")
-                subreddit = reddit.subreddit(subreddit_name)
-                
-                # Get top posts from the last 7 days
-                for post in subreddit.top(time_filter='week', limit=10):
-                    result = {
-                        "query": post.title,
-                        "traffic": post.score,
-                        "date": datetime.fromtimestamp(post.created_utc).isoformat(),
-                        "country": "Global",  # Reddit is global
-                        "related_queries": [],
-                        "related_topics": [],
-                        "url": f"https://reddit.com{post.permalink}",
-                        "subreddit": subreddit_name,
-                        "num_comments": post.num_comments
-                    }
-                    results.append(result)
-                    
-            except Exception as e:
-                print(f"Error fetching from r/{subreddit_name}: {str(e)}")
-                continue
-        
-        if not results:
-            raise HTTPException(status_code=404, detail="No trends data available")
-            
-        print(f"Successfully generated {len(results)} trend results")
-        return results
-        
+        trends = get_trends_with_retry()
+        return {"trends": trends.to_dict()}
     except Exception as e:
-        print(f"Unexpected error in get_trends: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/trends/interest/{keyword}")
+async def get_interest_over_time(keyword: str):
+    try:
+        pytrends.build_payload([keyword], timeframe='today 7-d')
+        interest_over_time_df = pytrends.interest_over_time()
+        return interest_over_time_df.to_dict()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/trends/related/{keyword}")
+async def get_related_queries(keyword: str):
+    try:
+        pytrends.build_payload([keyword])
+        related_queries = pytrends.related_queries()
+        return related_queries[keyword]['top'].to_dict()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8081) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)

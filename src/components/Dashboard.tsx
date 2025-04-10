@@ -15,12 +15,13 @@ import { fetchGoogleTrends } from '@/lib/api/googleTrends';
 import { fetchRedditTrends } from '@/lib/api/redditTrends';
 import { searchRedditPosts } from '@/lib/api/reddit';
 import { analyzeTrend } from '@/lib/api/aiFilter';
+import { fetchSearchQueries } from '@/lib/api/searchConsoleAdapter';
 
 interface Trend {
   query: string;
   traffic: number;
   date: string;
-  country: string;
+  country: string;  
   isRelevant?: boolean;
   potentialScore?: number;
   redditPosts?: any[];
@@ -38,6 +39,11 @@ interface TrendAnalytics {
   mentions: number;
   growth: number;
   date: string;
+}
+
+interface TrendData {
+  query: string;
+  traffic: number;
 }
 
 const TrendAnalyticsList = ({ trends }: { trends: TrendAnalytics[] }) => {
@@ -161,7 +167,8 @@ const Dashboard = () => {
       // Analyze each trend
       const analyzedTrends = await Promise.all(
         googleTrends.map(async (trend) => {
-          const analysis = await analyzeTrend(trend.query);
+          const query = typeof trend.query === 'string' ? trend.query : String(trend.query);
+          const analysis = await analyzeTrend(query);
           const redditPosts = await searchRedditPosts(trend.query);
           
           return {
@@ -273,7 +280,9 @@ const Dashboard = () => {
     
     try {
       // In a real implementation, this would call the Instagram API
-      const instagramTrends = await new Promise(resolve => setTimeout(() => resolve([{query: 'test', traffic: 100}]), 2000));
+      const instagramTrends = await new Promise<TrendData[]>(resolve => 
+        setTimeout(() => resolve([{query: 'test', traffic: 100}]), 2000)
+      );
       
       const now = new Date();
       setLastRunData({
@@ -307,7 +316,9 @@ const Dashboard = () => {
     
     try {
       // In a real implementation, this would call the TikTok API
-      const tiktokTrends = await new Promise(resolve => setTimeout(() => resolve([{query: 'test', traffic: 100}]), 2000));
+      const tiktokTrends = await new Promise<TrendData[]>(resolve => 
+        setTimeout(() => resolve([{query: 'test', traffic: 100}]), 2000)
+      );
       
       const now = new Date();
       setLastRunData({
@@ -475,7 +486,7 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-
+          
           {redditAnalysisData && (
             <div className="space-y-6 mb-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -658,26 +669,26 @@ const Dashboard = () => {
             </Card>
 
             <Card className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center">
+            <CardHeader>
+              <CardTitle className="flex items-center">
                   <BarChart2 className="h-5 w-5 mr-2" />
                   Engagement Metrics
-                </CardTitle>
-                <CardDescription>
+              </CardTitle>
+              <CardDescription>
                   Trend engagement and potential
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData}>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
                         dataKey="engagement" 
                         stroke="#3B82F6" 
                         strokeWidth={2}
@@ -687,27 +698,27 @@ const Dashboard = () => {
                         type="monotone" 
                         dataKey="potential" 
                         stroke="#10B981" 
-                        strokeWidth={2}
+                      strokeWidth={2}
                         dot={false}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <FilterBar />
+        <TrendAnalysis />
+        <AIInsights />
+        <SocialMediaTrendAnalysis />
+        
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold">Trending Opportunities</h2>
+            <button className="text-sm text-brand-blue hover:text-brand-teal">View All</button>
           </div>
-          
-          <FilterBar />
-          <TrendAnalysis />
-          <AIInsights />
-          <SocialMediaTrendAnalysis />
-          
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Trending Opportunities</h2>
-              <button className="text-sm text-brand-blue hover:text-brand-teal">View All</button>
-            </div>
-            <TrendGrid trends={trends} />
+          <TrendGrid trends={trends} />
           </div>
         </div>
       </main>
