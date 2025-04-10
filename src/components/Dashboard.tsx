@@ -1,13 +1,41 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Header from './Header';
 import FilterBar from './FilterBar';
 import TrendAnalysis from './TrendAnalysis';
 import AIInsights from './AIInsights';
 import TrendGrid from './TrendGrid';
 import SocialMediaTrendAnalysis from './SocialMediaTrendAnalysis';
+import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  const handleExecute = () => {
+    setIsExecuting(true);
+    
+    // Simulate the process of analyzing trends
+    toast({
+      title: "Starting trend analysis",
+      description: "Connecting to Google Trends and analyzing popular searches...",
+    });
+    
+    // Simulate the processing time
+    setTimeout(() => {
+      setIsExecuting(false);
+      toast({
+        title: "Analysis complete",
+        description: "Filtered out celebrity names and non-relevant queries. View results below.",
+        variant: "success",
+      });
+      
+      // In a real implementation, this would trigger the actual API calls and data processing
+      window.open('https://trends.google.com/trends/explore', '_blank');
+    }, 3000);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
@@ -15,9 +43,18 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Trend Discovery Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Discover emerging trends and opportunities for innovative app development
           </p>
+          
+          <Button 
+            onClick={handleExecute} 
+            disabled={isExecuting}
+            className="bg-brand-teal hover:bg-brand-teal/90 text-white font-bold py-3 px-6 rounded-lg shadow-md flex items-center justify-center w-full md:w-auto mb-8"
+          >
+            <Play className="mr-2 h-5 w-5" />
+            {isExecuting ? "Analyzing Trends..." : "Execute Trend Analysis"}
+          </Button>
         </div>
         
         <FilterBar />
