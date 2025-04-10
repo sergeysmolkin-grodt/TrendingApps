@@ -5,6 +5,7 @@ import FilterBar from './FilterBar';
 import TrendAnalysis from './TrendAnalysis';
 import AIInsights from './AIInsights';
 import TrendGrid from './TrendGrid';
+import SocialMediaTrendAnalysis from './SocialMediaTrendAnalysis';
 
 const Dashboard = () => {
   return (
@@ -22,6 +23,7 @@ const Dashboard = () => {
         <FilterBar />
         <TrendAnalysis />
         <AIInsights />
+        <SocialMediaTrendAnalysis />
         
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
