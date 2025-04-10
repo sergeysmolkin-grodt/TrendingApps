@@ -10,12 +10,11 @@ import AIInsights from './AIInsights';
 import TrendGrid from './TrendGrid';
 import SocialMediaTrendAnalysis from './SocialMediaTrendAnalysis';
 import { Badge } from "@/components/ui/badge";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { fetchGoogleTrends } from '@/lib/api/googleTrends';
 import { fetchRedditTrends } from '@/lib/api/redditTrends';
 import { searchRedditPosts } from '@/lib/api/reddit';
 import { analyzeTrend } from '@/lib/api/aiFilter';
-import RedditTrendTest from './RedditTrendTest';
 
 interface Trend {
   query: string;
@@ -25,6 +24,11 @@ interface Trend {
   isRelevant?: boolean;
   potentialScore?: number;
   redditPosts?: any[];
+  validation?: {
+    category: string;
+    relevanceScore: number;
+    reason: string;
+  };
 }
 
 interface TrendAnalytics {
@@ -117,6 +121,16 @@ const Dashboard = () => {
   const [lastRunData, setLastRunData] = useState<{date: string, trendsCount: number, source: 'google' | 'reddit' | 'instagram' | 'tiktok'} | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [trends, setTrends] = useState<Trend[]>([]);
+  const [redditAnalysisData, setRedditAnalysisData] = useState<{
+    trends: any[];
+    trendData: any[];
+    topTrends: any[];
+    engagementData: any[];
+  } | null>(null);
+
+  // Add pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const trendsPerPage = 3;
 
   // Enhanced trend data with more metrics
   const trendData = [
@@ -154,7 +168,8 @@ const Dashboard = () => {
             ...trend,
             isRelevant: analysis.isRelevant,
             potentialScore: analysis.potentialScore,
-            redditPosts
+            redditPosts,
+            validation: analysis.validation
           };
         })
       );
@@ -201,6 +216,36 @@ const Dashboard = () => {
         date: now.toLocaleString(),
         trendsCount: redditTrends.length,
         source: 'reddit'
+      });
+
+      // Create trend data for charts
+      const trendData = redditTrends.map(trend => ({
+        keyword: trend.keyword,
+        score: trend.metrics.score,
+        comments: trend.metrics.comments,
+        growth: trend.metrics.growth,
+        velocity: trend.metrics.velocity,
+        subreddits: trend.subreddits.length,
+        posts: trend.posts.length
+      }));
+
+      // Sort by score for top trends
+      const topTrends = [...trendData].sort((a, b) => b.score - a.score).slice(0, 5);
+      
+      // Create engagement data for charts
+      const engagementData = redditTrends.map(trend => ({
+        keyword: trend.keyword,
+        engagement: trend.metrics.comments + trend.metrics.score,
+        growth: trend.metrics.growth,
+        velocity: trend.metrics.velocity
+      }));
+
+      // Update state with new data
+      setRedditAnalysisData({
+        trends: redditTrends,
+        trendData,
+        topTrends,
+        engagementData
       });
       
       toast({
@@ -292,6 +337,51 @@ const Dashboard = () => {
     document.documentElement.classList.toggle('dark');
   };
 
+  // Add pagination controls component
+  const PaginationControls = ({ 
+    currentPage, 
+    totalPages, 
+    onPageChange 
+  }: { 
+    currentPage: number; 
+    totalPages: number; 
+    onPageChange: (page: number) => void;
+  }) => {
+    return (
+      <div className="flex items-center justify-center gap-2 mt-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <div className="flex items-center gap-1 max-w-[300px] overflow-x-auto px-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={currentPage === page ? "default" : "outline"}
+              size="sm"
+              className="min-w-[32px] px-2"
+              onClick={() => onPageChange(page)}
+            >
+              {page}
+            </Button>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header 
@@ -300,10 +390,6 @@ const Dashboard = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <RedditTrendTest />
-        </div>
-        
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Trend Discovery</h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -389,6 +475,149 @@ const Dashboard = () => {
               )}
             </div>
           </div>
+
+          {redditAnalysisData && (
+            <div className="space-y-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Reddit Trends</CardTitle>
+                    <CardDescription>Most engaging topics by score and comments</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={redditAnalysisData.topTrends}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="keyword" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="score" fill="#8884d8" name="Score" />
+                          <Bar dataKey="comments" fill="#82ca9d" name="Comments" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Trend Engagement</CardTitle>
+                    <CardDescription>Growth and velocity of trending topics</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={redditAnalysisData.engagementData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="keyword" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Line type="monotone" dataKey="growth" stroke="#8884d8" name="Growth" />
+                          <Line type="monotone" dataKey="velocity" stroke="#82ca9d" name="Velocity" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Detailed Trend Analysis</CardTitle>
+                  <CardDescription>Comprehensive breakdown of each trend</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {redditAnalysisData.trends
+                      .slice((currentPage - 1) * trendsPerPage, currentPage * trendsPerPage)
+                      .map((trend, index) => (
+                        <div key={index} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-semibold">#{trend.keyword}</h3>
+                              {trend.validation && (
+                                <Badge variant="outline" className="bg-purple-100 text-purple-800">
+                                  {trend.validation.category}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                                Score: {trend.metrics.score}
+                              </Badge>
+                              <Badge variant="outline" className="bg-green-100 text-green-800">
+                                Comments: {trend.metrics.comments}
+                              </Badge>
+                              {trend.validation && (
+                                <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                                  Relevance: {(trend.validation.relevanceScore * 100).toFixed(0)}%
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="text-gray-500">Growth Rate:</span>
+                              <span className="ml-2">{trend.metrics.growth.toFixed(2)}/hr</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Velocity:</span>
+                              <span className="ml-2">{trend.metrics.velocity.toFixed(2)}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Subreddits:</span>
+                              <span className="ml-2">{trend.subreddits.length}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Posts:</span>
+                              <span className="ml-2">{trend.posts.length}</span>
+                            </div>
+                          </div>
+                          {trend.validation?.reason && (
+                            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                              AI Analysis: {trend.validation.reason}
+                            </div>
+                          )}
+                          <div className="mt-4">
+                            <h4 className="text-sm font-medium mb-2">Top Posts:</h4>
+                            <div className="space-y-2">
+                              {trend.posts.slice(0, 3).map((post, postIndex) => (
+                                <a
+                                  key={postIndex}
+                                  href={post.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                >
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm">r/{post.subreddit}</span>
+                                    <div className="flex gap-2 text-xs text-gray-500">
+                                      <span>↑ {post.score}</span>
+                                      <span>💬 {post.num_comments}</span>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm mt-1">{post.title}</p>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                  {redditAnalysisData.trends.length > trendsPerPage && (
+                    <PaginationControls
+                      currentPage={currentPage}
+                      totalPages={Math.ceil(redditAnalysisData.trends.length / trendsPerPage)}
+                      onPageChange={setCurrentPage}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <Card className="border-0 shadow-sm">
