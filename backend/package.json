@@ -1,0 +1,17 @@
+{
+  "name": "trend-whisperer-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy server for Trend Whisperer",
+  "main": "src/proxy.js",
+  "scripts": {
+    "start": "node src/proxy.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.7",
+    "cors": "^2.8.5"
+  }
+}
