@@ -28,7 +28,7 @@ const Dashboard = () => {
       toast({
         title: "Analysis complete",
         description: "Filtered out celebrity names and non-relevant queries. View results below.",
-        variant: "success",
+        variant: "default", // Changed from "success" to "default" since only "default" and "destructive" are supported
       });
       
       // In a real implementation, this would trigger the actual API calls and data processing
