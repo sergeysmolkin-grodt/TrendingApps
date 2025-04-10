@@ -1,10 +1,21 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Moon, Sun, User, Settings } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
-const Header = () => {
+interface HeaderProps {
+  onThemeToggle?: () => void;
+  theme?: 'light' | 'dark';
+}
+
+const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
   return (
     <header className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
@@ -28,11 +39,49 @@ const Header = () => {
           />
         </div>
         
-        <div className="hidden md:flex space-x-2 mt-4 md:mt-0">
-          <Button variant="outline" size="sm">Dashboard</Button>
-          <Button variant="outline" size="sm">Explore</Button>
-          <Button variant="outline" size="sm">Analysis</Button>
-          <Button size="sm" className="bg-brand-teal hover:bg-brand-teal/90">New Search</Button>
+        <div className="flex items-center space-x-2 mt-4 md:mt-0">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={onThemeToggle}>
+                  {theme === 'light' ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle theme</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Settings className="h-[1.2rem] w-[1.2rem]" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Settings</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <User className="h-[1.2rem] w-[1.2rem]" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Profile</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <div className="hidden md:flex ml-2">
+            <Button size="sm" className="bg-brand-teal hover:bg-brand-teal/90">New Search</Button>
+          </div>
         </div>
       </div>
     </header>
