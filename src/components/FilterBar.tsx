@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Filter, MapPin, Calendar, Layers } from 'lucide-react';
+import { Filter, MapPin, Calendar, Layers, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Select, 
@@ -24,7 +24,7 @@ const FilterBar = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center">
           <Filter className="h-5 w-5 text-gray-500 mr-2" />
-          <span className="font-medium">Filters</span>
+          <span className="font-medium">Фильтры</span>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full md:w-auto">
@@ -32,18 +32,19 @@ const FilterBar = () => {
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start">
                 <Layers className="h-4 w-4 mr-2" />
-                <span>Categories</span>
+                <span>Категории</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Select Categories</h4>
+                  <h4 className="font-medium">Выберите категории</h4>
                   <Separator />
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      'Technology', 'Health', 'Education', 'Finance', 
-                      'Lifestyle', 'Entertainment', 'Sports', 'Science'
+                      'Технологии', 'Здоровье', 'Образование', 'Финансы', 
+                      'Лайфстайл', 'Развлечения', 'Спорт', 'Наука',
+                      'Продуктивность', 'AI', 'Автоматизация', 'Коммуникации'
                     ].map((category) => (
                       <div key={category} className="flex items-center space-x-2">
                         <Checkbox id={`category-${category}`} />
@@ -60,18 +61,18 @@ const FilterBar = () => {
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start">
                 <MapPin className="h-4 w-4 mr-2" />
-                <span>Regions</span>
+                <span>Регионы</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <h4 className="font-medium">Select Regions</h4>
+                  <h4 className="font-medium">Выберите регионы</h4>
                   <Separator />
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      'Global', 'United States', 'United Kingdom', 'Europe', 'Asia', 
-                      'Australia', 'South America', 'Africa'
+                      'Глобально', 'США', 'Европа', 'Россия', 'Азия', 
+                      'Австралия', 'Южная Америка', 'Африка'
                     ].map((region) => (
                       <div key={region} className="flex items-center space-x-2">
                         <Checkbox id={`region-${region}`} />
@@ -88,35 +89,36 @@ const FilterBar = () => {
             <SelectTrigger>
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Time Period" />
+                <SelectValue placeholder="Период" />
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="past-day">Past Day</SelectItem>
-              <SelectItem value="past-week">Past Week</SelectItem>
-              <SelectItem value="past-month">Past Month</SelectItem>
-              <SelectItem value="past-year">Past Year</SelectItem>
-              <SelectItem value="5-year">5 Year Trend</SelectItem>
+              <SelectItem value="past-day">Последний день</SelectItem>
+              <SelectItem value="past-week">Последняя неделя</SelectItem>
+              <SelectItem value="past-month">Последний месяц</SelectItem>
+              <SelectItem value="past-year">Последний год</SelectItem>
+              <SelectItem value="5-year">5 лет</SelectItem>
             </SelectContent>
           </Select>
           
           <Select>
             <SelectTrigger>
               <div className="flex items-center">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Filter Type" />
+                <Sparkles className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Потенциал" />
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="emerging">Emerging Trends</SelectItem>
-              <SelectItem value="stable">Stable Trends</SelectItem>
-              <SelectItem value="high-interest">High Interest</SelectItem>
-              <SelectItem value="app-potential">App Potential</SelectItem>
+              <SelectItem value="emerging">Новые тренды</SelectItem>
+              <SelectItem value="stable">Стабильные тренды</SelectItem>
+              <SelectItem value="high-interest">Высокий интерес</SelectItem>
+              <SelectItem value="app-potential">Потенциал для приложения</SelectItem>
+              <SelectItem value="viral-potential">Вирусный потенциал</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
-        <Button className="bg-brand-teal hover:bg-brand-teal/90">Apply Filters</Button>
+        <Button className="bg-brand-teal hover:bg-brand-teal/90">Применить фильтры</Button>
       </div>
     </div>
   );

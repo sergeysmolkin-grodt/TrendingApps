@@ -1,4 +1,5 @@
-import { analyzeTrend } from './googleTrendsAnalyzer';
+
+import { analyzeTrend } from './aiFilter';
 import {
   fetchDailyTrends,
   fetchInterestOverTime,
@@ -16,6 +17,13 @@ interface Trend {
     category: string;
     relevanceScore: number;
     reason: string;
+  };
+  productPotential?: {
+    appIdea: string;
+    targetAudience: string;
+    problemSolved: string;
+    viralPotential: number;
+    simplicity: number;
   };
 }
 
@@ -43,19 +51,17 @@ export async function fetchGoogleTrends(): Promise<Trend[]> {
           date: new Date().toISOString(),
           country: 'US',
           isRelevant: analysis.isRelevant,
-          potentialScore: analysis.metrics.growthRate,
-          validation: {
-            category: analysis.category,
-            relevanceScore: analysis.metrics.stability,
-            reason: analysis.relevanceReason
-          }
+          potentialScore: analysis.potentialScore,
+          validation: analysis.validation,
+          productPotential: analysis.productPotential
         };
       })
     );
 
-    return analyzedTrends;
+    // Filter out irrelevant trends
+    return analyzedTrends.filter(trend => trend.isRelevant);
   } catch (error) {
     console.error('Error fetching Google Trends:', error);
     return [];
   }
-} 
+}

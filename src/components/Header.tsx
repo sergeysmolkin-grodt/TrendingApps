@@ -21,10 +21,10 @@ const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
       <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center mb-4 md:mb-0">
           <div className="w-10 h-10 bg-gradient-to-br from-brand-blue to-brand-teal rounded-lg flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-xl">TW</span>
+            <span className="text-white font-bold text-xl">TH</span>
           </div>
           <h1 className="text-2xl font-bold text-brand-blue dark:text-white">
-            Trend Whisperer
+            Trend App Hunter
           </h1>
         </div>
         
@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
           </div>
           <Input 
             type="search" 
-            placeholder="Search trends..." 
+            placeholder="Поиск трендов..." 
             className="pl-10 w-full"
           />
         </div>
@@ -48,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Toggle theme</p>
+                <p>Переключить тему</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Settings</p>
+                <p>Настройки</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -74,13 +74,13 @@ const Header: React.FC<HeaderProps> = ({ onThemeToggle, theme = 'light' }) => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Profile</p>
+                <p>Профиль</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
           
           <div className="hidden md:flex ml-2">
-            <Button size="sm" className="bg-brand-teal hover:bg-brand-teal/90">New Search</Button>
+            <Button size="sm" className="bg-brand-teal hover:bg-brand-teal/90">Новый поиск</Button>
           </div>
         </div>
       </div>
