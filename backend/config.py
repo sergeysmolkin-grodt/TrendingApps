@@ -1,0 +1,8 @@
+# TikTok API Configuration
+TIKTOK_CLIENT_KEY = "awbl88uaujz19z9z"
+TIKTOK_CLIENT_SECRET = "DepERk9NDRM9bJ9p0zdwQ15zATZs2KPg"
+TIKTOK_API_KEY = f"{TIKTOK_CLIENT_KEY}:{TIKTOK_CLIENT_SECRET}"
+
+# Server Configuration
+PORT = 8000
+HOST = "0.0.0.0" 
