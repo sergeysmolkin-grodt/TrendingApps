@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Box, Typography, Card, CardContent } from '@mui/material';
 import { AnalyticsSection } from './AnalyticsSection';
@@ -124,6 +125,8 @@ export const StepAnalytics: React.FC<StepAnalyticsProps> = ({ step, trends, post
         </Box>
         <Box sx={{ height: 200 }}>
           <AnalyticsSection
+            title={analytics.title}
+            description={analytics.description}
             chartData={analytics.chartData}
             compact={true}
           />
@@ -131,4 +134,4 @@ export const StepAnalytics: React.FC<StepAnalyticsProps> = ({ step, trends, post
       </CardContent>
     </Card>
   );
-}; 
+};

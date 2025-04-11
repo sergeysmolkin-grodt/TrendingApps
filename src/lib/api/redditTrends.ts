@@ -1,11 +1,6 @@
 import axios from 'axios';
-// import { validateTrend, ValidationResult } from './aiTrendValidator';
-// import { analyzeWord } from './aiWordAnalyzer';
-// import { analyzeProblem } from './aiProblemAnalyzer';
-// import { openAILimiter } from './rateLimiter';
-// import { analyzePattern } from './aiPatternAnalyzer';
 
-interface RedditComment {
+export interface RedditComment {
   id: string;
   body: string;
   score: number;
@@ -22,7 +17,7 @@ interface CommentAnalysis {
   score: number;
 }
 
-interface RedditPost {
+export interface RedditPost {
   id: string;
   title: string;
   score: number;
@@ -35,7 +30,7 @@ interface RedditPost {
   comments?: RedditComment[];
 }
 
-interface TrendMetric {
+export interface TrendMetric {
   score: number;
   comments: number;
   growth: number;
@@ -47,14 +42,13 @@ interface TrendMetric {
   patternScore: number;
 }
 
-interface Trend {
+export interface Trend {
   keyword: string;
   metrics: TrendMetric;
   posts: RedditPost[];
   subreddits: string[];
   firstSeen: number;
   lastSeen: number;
-  // validation?: ValidationResult;
   problemDescription?: string;
   targetAudience?: string[];
   monetizationIdeas?: string[];
@@ -424,26 +418,6 @@ class RedditTrendAnalyzer {
     return keywordMap;
   }
 
-  // private async analyzeProblemContext(posts: RedditPost[]): Promise<{
-  //   problemDescription: string;
-  //   targetAudience: string[];
-  //   monetizationIdeas: string[];
-  // }> {
-  //   const analysis = await analyzeProblem(
-  //     posts.map(post => ({
-  //       title: post.title,
-  //       text: post.selftext,
-  //       subreddit: post.subreddit
-  //     }))
-  //   );
-
-  //   return {
-  //     problemDescription: analysis.problemDescription,
-  //     targetAudience: analysis.targetAudience,
-  //     monetizationIdeas: analysis.monetizationIdeas
-  //   };
-  // }
-
   private scoreTrend(keyword: string, posts: RedditPost[], metrics: TrendMetric): number {
     let score = metrics.score * 0.2 + 
                 metrics.comments * 0.15 + 
@@ -677,4 +651,4 @@ class RedditTrendAnalyzer {
 export const fetchRedditTrends = async (): Promise<Trend[]> => {
   const analyzer = new RedditTrendAnalyzer();
   return await analyzer.analyzeTrends();
-}; 
+};
